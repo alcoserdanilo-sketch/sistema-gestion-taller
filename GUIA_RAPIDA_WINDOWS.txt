@@ -1,0 +1,121 @@
+INSTALACIÓN RÁPIDA EN WINDOWS
+=============================
+
+## PASO 1: Descargar e instalar XAMPP
+
+1. Ve a: https://www.apachefriends.org/es/download.html
+2. Descarga XAMPP para Windows (versión 8.0+)
+3. Ejecuta el instalador
+4. Elige la carpeta de instalación (por defecto C:\xampp)
+5. En la selección de componentes, asegúrate de que Apache y PHP estén marcados
+6. Completa la instalación
+
+## PASO 2: Habilitar SQLite3 en PHP
+
+Esta es la causa más común del error:
+
+1. Abre el Explorador de archivos
+2. Ve a: C:\xampp\php
+3. Abre php.ini con Bloc de notas (clic derecho > Abrir con > Bloc de notas)
+4. Busca (Ctrl+F): ;extension=sqlite3
+5. Quita el punto y coma al inicio, debe quedar: extension=sqlite3
+6. Guarda el archivo (Ctrl+S)
+7. Cierra Bloc de notas
+
+## PASO 3: Copiar el proyecto
+
+1. Abre GitHub y descarga el repositorio como ZIP:
+   https://github.com/alcoserdanilo-sketch/sistema-gestion-taller
+   (Clic en Code > Download ZIP)
+
+2. Extrae la carpeta en: C:\xampp\htdocs
+   (Debe quedarte: C:\xampp\htdocs\sistema-gestion-taller)
+
+3. Verifica que dentro de esa carpeta estén todos los archivos PHP, CSS, JS, etc.
+
+## PASO 4: Iniciar XAMPP y Apache
+
+1. Abre XAMPP Control Panel (busca en el menú Inicio)
+2. Haz clic en "Start" junto a Apache
+3. Espera a que el botón de Apache se ponga en verde
+4. No necesitas iniciar MySQL
+
+## PASO 5: Verificar la instalación
+
+1. Abre tu navegador (Chrome, Firefox, Edge, etc.)
+2. Ve a: http://localhost/sistema-gestion-taller/check.php
+3. Deberías ver una página de verificación
+4. Si todo está verde (✅), haz clic en "Ir a Gestión Taller"
+5. Si algo está rojo (❌), sigue las instrucciones de solución
+
+## PASO 6: Iniciar sesión
+
+1. Usuario: admin
+2. Contraseña: admin123
+3. ¡Listo! Ya estás dentro del sistema
+
+## USO DESDE OTRO PC DE LA RED
+
+1. En el PC que tiene XAMPP:
+   - Abre Command Prompt (cmd)
+   - Ejecuta: ipconfig
+   - Busca "Dirección IPv4" (ej: 192.168.1.50)
+
+2. En el otro PC:
+   - Abre el navegador
+   - Ve a: http://192.168.1.50/sistema-gestion-taller/
+   - Usa las mismas credenciales
+
+## SI SIGUE HABIENDO ERROR
+
+**Error: "Error interno del servidor"**
+- Verifica que SQLite3 esté habilitado (PASO 2)
+- Reinicia Apache desde XAMPP después de habilitar SQLite3
+- Recarga la página en el navegador (Ctrl+F5)
+
+**Error: "No se puede conectar"**
+- Verifica que Apache esté iniciado en XAMPP (debe estar verde)
+- Comprueba que la URL sea correcta
+- Intenta: http://localhost/sistema-gestion-taller/check.php
+
+**Error: "Base de datos no encontrada"**
+- Verifica que la carpeta data/ tenga permisos de escritura
+- Clic derecho en C:\xampp\htdocs\sistema-gestion-taller\data
+- Propiedades > Seguridad > Editar > Usuarios > Permitir todo
+
+## ARCHIVOS IMPORTANTES
+
+- index.php: Pantalla de inicio (login)
+- api.php: Backend de la aplicación
+- db.php: Base de datos SQLite
+- config.php: Configuración del sistema
+- style.css: Estilos visuales
+- app.js: Lógica del navegador
+- check.php: Verificador de requisitos
+- data/workshop.db: Base de datos (se crea automáticamente)
+- data/logs.txt: Historial de operaciones
+- data/backups/: Copias de seguridad
+
+## PRIMEROS PASOS DENTRO DEL SISTEMA
+
+1. Accede como admin
+2. Ve a Administración (⚙️) si eres admin
+3. Configura los datos de tu taller:
+   - Nombre
+   - Dirección
+   - Teléfono
+   - Email
+   - Tarifa horaria
+4. Crea usuarios adicionales para mecánicos y recepción
+5. Empieza a registrar clientes y vehículos
+
+## SOPORTE
+
+Si todo está bien pero sigue sin funcionar:
+
+1. Abre check.php en el navegador
+2. Captura la pantalla del resultado
+3. Verifica que todas las líneas estén en verde (✅)
+4. Si hay algo en rojo (❌), sigue las instrucciones de solución
+
+¡Listo! Ya tienes tu sistema de gestión de taller funcionando en Windows.
