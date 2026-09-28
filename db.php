@@ -13,7 +13,6 @@ class WorkshopDB {
 
     public function init(): void {
         $queries = [
-            // Tabla de usuarios con roles mejorados
             "CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT NOT NULL UNIQUE,
@@ -26,8 +25,6 @@ class WorkshopDB {
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 last_login TEXT
             );",
-
-            // Clientes
             "CREATE TABLE IF NOT EXISTS clients (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 name TEXT NOT NULL,
@@ -41,8 +38,6 @@ class WorkshopDB {
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );",
-
-            // Vehículos
             "CREATE TABLE IF NOT EXISTS vehicles (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 client_id INTEGER NOT NULL,
@@ -59,8 +54,6 @@ class WorkshopDB {
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(client_id) REFERENCES clients(id) ON DELETE CASCADE
             );",
-
-            // Presupuestos
             "CREATE TABLE IF NOT EXISTS budgets (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 client_id INTEGER NOT NULL,
@@ -80,8 +73,6 @@ class WorkshopDB {
                 FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE CASCADE,
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Órdenes de trabajo
             "CREATE TABLE IF NOT EXISTS work_orders (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 client_id INTEGER NOT NULL,
@@ -110,8 +101,6 @@ class WorkshopDB {
                 FOREIGN KEY(assigned_to) REFERENCES users(id),
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Facturas
             "CREATE TABLE IF NOT EXISTS invoices (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 client_id INTEGER NOT NULL,
@@ -134,8 +123,6 @@ class WorkshopDB {
                 FOREIGN KEY(work_order_id) REFERENCES work_orders(id) ON DELETE SET NULL,
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Agenda
             "CREATE TABLE IF NOT EXISTS agenda (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 date TEXT NOT NULL,
@@ -153,8 +140,6 @@ class WorkshopDB {
                 FOREIGN KEY(vehicle_id) REFERENCES vehicles(id) ON DELETE SET NULL,
                 FOREIGN KEY(assigned_to) REFERENCES users(id)
             );",
-
-            // Repuestos
             "CREATE TABLE IF NOT EXISTS spare_parts (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 code TEXT NOT NULL UNIQUE,
@@ -169,8 +154,6 @@ class WorkshopDB {
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 updated_at TEXT DEFAULT CURRENT_TIMESTAMP
             );",
-
-            // Compras de repuestos
             "CREATE TABLE IF NOT EXISTS purchases (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 part_id INTEGER NOT NULL,
@@ -187,8 +170,6 @@ class WorkshopDB {
                 FOREIGN KEY(part_id) REFERENCES spare_parts(id) ON DELETE CASCADE,
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Stock de almacén
             "CREATE TABLE IF NOT EXISTS stock (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 part_id INTEGER NOT NULL UNIQUE,
@@ -197,8 +178,6 @@ class WorkshopDB {
                 last_update TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(part_id) REFERENCES spare_parts(id) ON DELETE CASCADE
             );",
-
-            // Movimientos de stock
             "CREATE TABLE IF NOT EXISTS stock_movements (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 part_id INTEGER NOT NULL,
@@ -212,8 +191,6 @@ class WorkshopDB {
                 FOREIGN KEY(part_id) REFERENCES spare_parts(id) ON DELETE CASCADE,
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Reparaciones (seguimiento detallado)
             "CREATE TABLE IF NOT EXISTS repairs (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 client_id INTEGER NOT NULL,
@@ -238,8 +215,6 @@ class WorkshopDB {
                 FOREIGN KEY(assigned_to) REFERENCES users(id),
                 FOREIGN KEY(created_by) REFERENCES users(id)
             );",
-
-            // Historial de auditoría
             "CREATE TABLE IF NOT EXISTS audit_log (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
@@ -252,8 +227,6 @@ class WorkshopDB {
                 created_at TEXT DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY(user_id) REFERENCES users(id)
             );",
-
-            // Configuración del sistema
             "CREATE TABLE IF NOT EXISTS settings (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 key TEXT NOT NULL UNIQUE,
@@ -302,7 +275,7 @@ class WorkshopDB {
         ];
 
         foreach ($defaults as $key => $value) {
-            $exists = $this->db->querySingle("SELECT COUNT(*) FROM settings WHERE key = :key", [':key' => $key]);
+            $exists = $this->getSingleValue("SELECT COUNT(*) FROM settings WHERE key = :key", [':key' => $key]);
             if ((int) $exists === 0) {
                 $sql = "INSERT INTO settings (key, value, type) VALUES (:key, :value, 'text')";
                 $stmt = $this->db->prepare($sql);
@@ -515,6 +488,16 @@ class WorkshopDB {
         return (string) $value;
     }
 
+    private function getSingleValue(string $query, array $params = []): ?string {
+        $stmt = $this->db->prepare($query);
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value, is_numeric($value) ? SQLITE3_INTEGER : SQLITE3_TEXT);
+        }
+        $result = $stmt->execute();
+        $row = $result->fetchArray(SQLITE3_NUM);
+        return $row !== false && isset($row[0]) ? (string) $row[0] : null;
+    }
+
     public function createBackup(): string {
         $timestamp = date('Y-m-d_H-i-s');
         $backup_file = BACKUP_DIR . '/backup_' . $timestamp . '.db';
@@ -524,7 +507,7 @@ class WorkshopDB {
     }
 
     public function getSetting(string $key, string $default = ''): string {
-        $value = $this->db->querySingle("SELECT value FROM settings WHERE key = :key", [':key' => $key]);
+        $value = $this->getSingleValue("SELECT value FROM settings WHERE key = :key", [':key' => $key]);
         return $value !== null ? (string) $value : $default;
     }
 
